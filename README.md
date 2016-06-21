@@ -31,6 +31,10 @@ cd canvas-utils
 go build rewrite-assignment-urls.go
 ```
 
+## Debugging
+
+Add -log=debug to command above
+
 ## License
 
 MIT
