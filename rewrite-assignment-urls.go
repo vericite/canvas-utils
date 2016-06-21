@@ -18,7 +18,7 @@ import (
 	"github.com/alexcesaro/log/stdlog"
 )
 
-// Override the defaults using --url=xxxx and --token=yyyy
+// Override the defaults using --url=xxxx and --token=yyyy and -filename=courses.txt
 var canvasBase = flag.String("url", "https://vericite.instructure.com/api/v1/", "the base URL for the Canvas API")
 var canvasAuth = flag.String("token", "xxxxxx", "the Canvas authentication token after the word Bearer")
 var csvFilename = flag.String("filename", "courses.csv", "a file containing all course ids")
@@ -104,6 +104,11 @@ func main() {
 			panic("Auth failed fetching")
 		}
 
+		if resp.StatusCode != http.StatusOK {
+			logger.Alert("Could not fetch assignments for course. Is your token correct? " + resp.Status)
+			return
+		}
+
 		// Convert the Canvas JSON into Go struct
 		var canvasAssignments []CanvasAssignment
 		json.Unmarshal(body, &canvasAssignments)
@@ -134,9 +139,13 @@ func main() {
 				}
 				dump, _ := httputil.DumpRequestOut(r, true)
 				body, _ := ioutil.ReadAll(resp.Body)
-				logger.Info("Modified assignment: " + assignmentID + ";Return: " + string(resp.Status))
-				logger.Debug("Request dump: " + string(dump))
-				logger.Debug("Request body: " + string(body))
+
+				if resp.StatusCode <= 206 {
+					logger.Info("Modified assignment: " + assignmentID + ";Return: " + string(resp.Status))
+				} else {
+					logger.Debug("Request dump: " + string(dump))
+					logger.Warning("Request body: " + string(body))
+				}
 				resp.Body.Close()
 				time.Sleep(1 * time.Second)
 			}
