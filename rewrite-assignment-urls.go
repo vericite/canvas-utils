@@ -105,8 +105,8 @@ func main() {
 		}
 
 		if resp.StatusCode != http.StatusOK {
-			logger.Alert("Could not fetch assignments for course. Is your token correct? " + resp.Status)
-			return
+			logger.Warning("Could not fetch assignments for course " + courseID + ". Canvas response: " + resp.Status)
+			continue
 		}
 
 		// Convert the Canvas JSON into Go struct
@@ -141,7 +141,7 @@ func main() {
 				body, _ := ioutil.ReadAll(resp.Body)
 
 				if resp.StatusCode <= 206 {
-					logger.Info("Modified assignment: " + assignmentID + ";Return: " + string(resp.Status))
+					logger.Info("Modified assignment: " + assignmentID + ";Canvas response: " + string(resp.Status))
 				} else {
 					logger.Debug("Request dump: " + string(dump))
 					logger.Warning("Request body: " + string(body))
