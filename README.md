@@ -17,11 +17,19 @@ This script uses the Canvas API to adjust the assignment field "external_tool_ta
 
 ## Running
 
+```
+wget https://github.com/vericite/canvas-utils/raw/master/rewrite-assignment-urls
+chmod +x rewrite-assignment-urls
 ./rewrite-assignment-urls -token="9000~aXXXXXXXXXXXXXXXXXXX" -url="https://acmecollege.instructure.com/api/v1/"
+```
 
-## Building
+## Building from Source
 
-go build -x rewrite-assignment-urls.go
+```
+git clone https://github.com/vericite/canvas-utils.git
+cd canvas-utils
+go build rewrite-assignment-urls.go
+```
 
 ## License
 
