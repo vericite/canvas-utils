@@ -4,6 +4,7 @@ This script uses the Canvas API to adjust the assignment field "external_tool_ta
 
 ## Script Options
 
+```
  -filename string
         a file containing all course ids (default "courses.csv")
   -log string
@@ -12,6 +13,7 @@ This script uses the Canvas API to adjust the assignment field "external_tool_ta
         the Canvas authentication token after the word Bearer (default "xxxxxx")
   -url string
         the base URL for the Canvas API (example "https://acmecollege.instructure.com/api/v1/")
+```
 
 ## Running
 
