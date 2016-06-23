@@ -31,6 +31,20 @@ cd canvas-utils
 go build rewrite-assignment-urls.go
 ```
 
+## Cross-compilation
+
+Build a Windows version from Linux
+
+```
+GOOS=windows GOARCH=386 go build -o rewrite-assignment-urls.exe rewrite-assignment-urls.go
+```
+
+Build a Mac version from Linux
+
+```
+GOOS=darwin go build -o mac-rewrite-assignment-urls rewrite-assignment-urls.go
+```
+
 ## Debugging
 
 Add -log=debug to command above
