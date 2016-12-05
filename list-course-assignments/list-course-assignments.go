@@ -1,14 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"encoding/csv"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+
 	"github.com/alexcesaro/log/stdlog"
 )
 
@@ -69,7 +70,7 @@ func main() {
 
 	file, err := os.Open(*csvFilename)
 	if err != nil {
-		panic("Can not open CSV")
+		panic("Cannot open CSV. Please supply a valid path to a CSV file.")
 	}
 	defer file.Close()
 	reader := csv.NewReader(file)
