@@ -50,7 +50,7 @@ This script uses the Canvas API to enable VeriCite for each assignment listed in
 ```
 
 ### Example
-CSV File (output from-course-assignments script):
+CSV File (output from list-course-assignments script, only courseId and assignmentId are used):
 ```
 courseId,assignmentId,assignmentName
 1,33,VeriCite Internal 1
@@ -60,24 +60,6 @@ courseId,assignmentId,assignmentName
 Run Script:
 ```
 ./enable-vericite-assignments -token="9000~aXXXXXXXXXXXXXXXXXXX" -url="https://acmecollege.instructure.com/api/v1/" -filename="assignments.csv"
-```
-
-### Script Options
-
-```
- -filename string (required)
-        a file containing all course ids
-  -log string
-        sets the logging threshold (default "info")
-  -token string (required)
-        the Canvas authentication token after the word Bearer (default "xxxxxx")
-  -url string (required)
-        the base URL for the Canvas API (example "https://acmecollege.instructure.com/api/v1/")
-```
-
-### Example
-```
-./list-course-assignments -token="9000~aXXXXXXXXXXXXXXXXXXX" -url="https://acmecollege.instructure.com/api/v1/" -filename="courses.csv" > assignments.csv
 ```
 
 # SCRIPT: rewrite-assignment-urls
