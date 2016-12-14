@@ -1,6 +1,6 @@
 # SCRIPT: list-course-assignments
 
-This script uses the Canvas API to print out a list of the Assignments associated with the courses.csv input file. You will want to save the output into a CSV file named assignments.csv to use for other scripts input.
+This script uses the Canvas API to print out a list of the Assignments associated with the courses.csv input file. It will only print out assignments that have a submission type of "online_upload" or "online_text_entry" or both. You will want to save the output into a CSV file named assignments.csv to use for other scripts input.
 
 ### Script Options
 
@@ -43,10 +43,6 @@ This script uses the Canvas API to enable VeriCite for each assignment listed in
         Option: Exclude Self Plagiarism
   -storeInIndex bool (default true)
         Option: Store submissions in Institutional Index
-  -uploadEntry bool (default true)
-        Option: Upload entry setting
-  -textEntry bool (default true)
-        Option: Text entry setting
 ```
 
 ### Example

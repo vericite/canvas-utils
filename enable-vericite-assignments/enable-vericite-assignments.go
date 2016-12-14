@@ -24,8 +24,8 @@ var visibility = flag.String("visibility", "immediate", "Option: Students Can Se
 var exclude_quoted = flag.String("excludeQuoted", "true", "Option: Exclude Quoted Material")
 var exclude_self_plag = flag.String("excludeSelfPlag", "true", "Option: Exclude Self Plagiarism")
 var store_in_index = flag.String("storeInIndex", "true", "Option: Store submissions in Institutional Index")
-var uploadEntry = flag.String("uploadEntry", "true", "Option: Upload entry setting")
-var textEntry = flag.String("textEntry", "true", "Option: Text entry setting")
+// var uploadEntry = flag.String("uploadEntry", "true", "Option: Upload entry setting")
+// var textEntry = flag.String("textEntry", "true", "Option: Text entry setting")
 
 // Use -log=debug to get debug-level output
 var logger = stdlog.GetFromFlags()
@@ -107,17 +107,17 @@ func main() {
 	if(*store_in_index != "true" && *store_in_index != "false"){
 		panic("storeInIndex can only be true or false")
 	}
-	if(*textEntry != "true" && *textEntry != "false"){
-		panic("textEntry can only be true or false")
-	}
-	if(*uploadEntry != "true" && *uploadEntry != "false"){
-		panic("uploadEntry can only be true or false")
-	}
-	if(*uploadEntry == "false" && *textEntry == "false"){
-		panic("Either textEntry or uploadEntry must be true")
-	}
+	// if(*textEntry != "true" && *textEntry != "false"){
+	// 	panic("textEntry can only be true or false")
+	// }
+	// if(*uploadEntry != "true" && *uploadEntry != "false"){
+	// 	panic("uploadEntry can only be true or false")
+	// }
+	// if(*uploadEntry == "false" && *textEntry == "false"){
+	// 	panic("Either textEntry or uploadEntry must be true")
+	// }
 	// Loop through the file containing course IDs
-	logger.Info("VeriCite settings:\nVisibility: " + *visibility + "\nExcludeQuotes: " + *exclude_quoted + "\nExclude Self Plag: " + *exclude_self_plag + "\nStore in Index: " + *store_in_index + "\nUpload Entry: " + *uploadEntry + "\nText Entry: " + *textEntry)
+	logger.Info("VeriCite settings:\nVisibility: " + *visibility + "\nExcludeQuotes: " + *exclude_quoted + "\nExclude Self Plag: " + *exclude_self_plag + "\nStore in Index: " + *store_in_index)
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
@@ -140,12 +140,12 @@ func main() {
 		data.Set("assignment[vericite_settings][exclude_self_plag]", *exclude_self_plag)
 		data.Set("assignment[vericite_settings][store_in_index]", *store_in_index)
 		var encodedParams = data.Encode()
-		if(*uploadEntry == "true"){
-			encodedParams = "assignment%5Bsubmission_types%5D%5B%5D=online_upload&" + encodedParams
-		}
-		if(*textEntry == "true"){
-			encodedParams = "assignment%5Bsubmission_types%5D%5B%5D=online_text_entry&" + encodedParams
-		}
+		// if(*uploadEntry == "true"){
+		// 	encodedParams = "assignment%5Bsubmission_types%5D%5B%5D=online_upload&" + encodedParams
+		// }
+		// if(*textEntry == "true"){
+		// 	encodedParams = "assignment%5Bsubmission_types%5D%5B%5D=online_text_entry&" + encodedParams
+		// }
 
 		// Create an HTTP PUT to modify this one assignment field
 		r, _ := http.NewRequest("PUT", *canvasBase+"courses/"+courseID+"/assignments/"+assignmentID,

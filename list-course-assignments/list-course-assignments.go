@@ -111,7 +111,20 @@ func main() {
 
 		// Loop over each assignment and look for the relevant attribute
 		for _, canvasAssignment := range canvasAssignments {
-			fmt.Printf("%v,%v,%v\n", courseID, canvasAssignment.ID, canvasAssignment.Name)
+			if((len(canvasAssignment.SubmissionTypes) == 2 && contains(canvasAssignment.SubmissionTypes, "online_upload") && contains(canvasAssignment.SubmissionTypes, "online_text_entry")) ||
+				 (len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_upload")) ||
+				 (len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_text_entry"))){
+				 fmt.Printf("%v,%v,%v\n", courseID, canvasAssignment.ID, canvasAssignment.Name)
+			}
 		}
 	}
+}
+
+func contains(s []string, e string) bool {
+    for _, a := range s {
+        if a == e {
+            return true
+        }
+    }
+    return false
 }
