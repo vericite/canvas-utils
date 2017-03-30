@@ -17,6 +17,7 @@ import (
 var canvasBase = flag.String("url", "https://vericite.instructure.com/api/v1/", "the base URL for the Canvas API")
 var canvasAuth = flag.String("token", "xxxxxx", "the Canvas authentication token after the word Bearer")
 var csvFilename = flag.String("filename", "courses.csv", "a file containing all course ids")
+var turnitin = flag.Bool("turnitin", false, "A flag indicating to only return assignments with TurnItIn enabled")
 
 // Use -log=debug to get debug-level output
 var logger = stdlog.GetFromFlags()
@@ -63,6 +64,7 @@ type CanvasAssignment struct {
 	Unpublishable                  bool        `json:"unpublishable"`
 	UpdatedAt                      string      `json:"updated_at"`
 	URL                            string      `json:"url"`
+	TurnitinEnabled                bool        `json:"turnitin_enabled"`
 }
 
 func main() {
@@ -111,9 +113,10 @@ func main() {
 
 		// Loop over each assignment and look for the relevant attribute
 		for _, canvasAssignment := range canvasAssignments {
-			if((len(canvasAssignment.SubmissionTypes) == 2 && contains(canvasAssignment.SubmissionTypes, "online_upload") && contains(canvasAssignment.SubmissionTypes, "online_text_entry")) ||
+			if(((len(canvasAssignment.SubmissionTypes) == 2 && contains(canvasAssignment.SubmissionTypes, "online_upload") && contains(canvasAssignment.SubmissionTypes, "online_text_entry")) ||
 				 (len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_upload")) ||
-				 (len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_text_entry"))){
+				 (len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_text_entry"))) &&
+				 (*turnitin != true || canvasAssignment.TurnitinEnabled == true)){
 				 fmt.Printf("%v,%v,%v\n", courseID, canvasAssignment.ID, canvasAssignment.Name)
 			}
 		}

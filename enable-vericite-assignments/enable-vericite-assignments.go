@@ -72,13 +72,14 @@ type CanvasAssignment struct {
 	Unpublishable                  bool        `json:"unpublishable"`
 	UpdatedAt                      string      `json:"updated_at"`
 	URL                            string      `json:"url"`
+	TurnitinEnabled                bool        `json:"turnitin_enabled"`
 	VericiteEnabled                bool        `json:"vericite_enabled"`
 	VeriCiteSettings               struct {
     OriginalityReportVisibility         string   `json:"originality_report_visibility"`
 		ExcludeQuotes                       bool     `json:"exclude_quoted"`
 		ExcludeSelfPlag                     bool     `json:"exclude_self_plag"`
 		StoreInIndex                        bool     `json:"store_in_index"`
-	} `json:"vericite_settings"`
+	} `json:"turnitin_settings"`
 }
 
 func main() {
@@ -134,11 +135,12 @@ func main() {
 
 		// Here is the correct VeriCite URL
 		data := url.Values{}
+		data.Set("assignment[turnitin_enabled]", "false")
 		data.Set("assignment[vericite_enabled]", "true")
-		data.Set("assignment[vericite_settings][originality_report_visibility]", *visibility)
-		data.Set("assignment[vericite_settings][exclude_quoted]", *exclude_quoted)
-		data.Set("assignment[vericite_settings][exclude_self_plag]", *exclude_self_plag)
-		data.Set("assignment[vericite_settings][store_in_index]", *store_in_index)
+		data.Set("assignment[turnitin_settings][originality_report_visibility]", *visibility)
+		data.Set("assignment[turnitin_settings][exclude_quoted]", *exclude_quoted)
+		data.Set("assignment[turnitin_settings][exclude_self_plag]", *exclude_self_plag)
+		data.Set("assignment[turnitin_settings][store_in_index]", *store_in_index)
 		var encodedParams = data.Encode()
 		// if(*uploadEntry == "true"){
 		// 	encodedParams = "assignment%5Bsubmission_types%5D%5B%5D=online_upload&" + encodedParams

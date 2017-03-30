@@ -13,6 +13,8 @@ This script uses the Canvas API to print out a list of the Assignments associate
         the Canvas authentication token after the word Bearer (default "xxxxxx")
   -url string (required)
         the base URL for the Canvas API (example "https://acmecollege.instructure.com/api/v1/")
+  -turnitin (optional)
+        optional flag to only return assignments that have turnitin enabled (turnitin must still be enabled in Canvas for this to work)
 ```
 
 ### Example
