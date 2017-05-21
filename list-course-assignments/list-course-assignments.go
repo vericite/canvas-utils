@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-
+  "strconv"
 	"github.com/alexcesaro/log/stdlog"
 )
 
@@ -87,6 +87,10 @@ func main() {
 			panic("Problem reading file")
 		}
 		courseID := record[0]
+		if _, err := strconv.Atoi(courseID); err != nil {
+			//this is most likely the header, skip
+      continue
+		}
 
 		// Get all assignments inside this course
 		req, err := http.NewRequest("GET", *canvasBase+"courses/"+courseID+"/assignments?per_page=100", nil)

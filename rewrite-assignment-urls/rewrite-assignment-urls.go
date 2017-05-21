@@ -124,7 +124,7 @@ func main() {
 
 				// Here is the correct VeriCite URL
 				data := url.Values{}
-				data.Set("assignment[external_tool_tag_attributes][url]", "https://app.vericite.com/vericite/")
+				data.Set("assignment[external_tool_tag_attributes][url]", "https://api.vericite.com/web/v1/authenticate/lti")
 
 				// Create an HTTP PUT to modify this one assignment field
 				r, _ := http.NewRequest("PUT", *canvasBase+"courses/"+courseID+"/assignments/"+assignmentID,

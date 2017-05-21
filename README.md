@@ -1,3 +1,25 @@
+# SCRIPT: list-courses
+
+This script uses the Canvas API to print out a list of the Courses associated with the given Canvas Account ID and Term ID parameters. You will want to save the output into a CSV file named courses.csv to use for other scripts input.
+
+### Script Options
+
+```
+  -token string (required)
+        the Canvas authentication token after the word Bearer (default "xxxxxx")
+  -url string (required)
+        the base URL for the Canvas API (example "https://acmecollege.instructure.com/api/v1/")
+  -accountId (required)
+        the Canvas Account Id that you wish to list courses for
+  -termId (required)
+        the Canvas Term Id that you wish to list courses for
+```
+
+### Example
+```
+./list-courses -token="9000~aXXXXXXXXXXXXXXXXXXX" -url="https://acmecollege.instructure.com/api/v1/" -accountId=1 -termId=1 > courses.csv
+```
+
 # SCRIPT: list-course-assignments
 
 This script uses the Canvas API to print out a list of the Assignments associated with the courses.csv input file. It will only print out assignments that have a submission type of "online_upload" or "online_text_entry" or both. You will want to save the output into a CSV file named assignments.csv to use for other scripts input.
@@ -20,6 +42,28 @@ This script uses the Canvas API to print out a list of the Assignments associate
 ### Example
 ```
 ./list-course-assignments -token="9000~aXXXXXXXXXXXXXXXXXXX" -url="https://acmecollege.instructure.com/api/v1/" -filename="courses.csv" > assignments.csv
+```
+
+# SCRIPT: export-submissions
+
+This script uses the Canvas API to download submission attachments from a list of assignments into a folder specified by the outputFolder parameter.
+
+### Script Options
+
+```
+  -filename string (required)
+        a file containing all assignment ids
+  -token string (required)
+        the Canvas authentication token after the word Bearer (default "xxxxxx")
+  -url string (required)
+        the base URL for the Canvas API (example "https://acmecollege.instructure.com/api/v1/")
+  -outputFolder (default submissions)
+        the location where you want to download submissions
+```
+
+### Example
+```
+./export-submissions -token="9000~aXXXXXXXXXXXXXXXXXXX" -url="https://acmecollege.instructure.com/api/v1/" -filename="assignments.csv" -outputFolder="submissions"
 ```
 
 # SCRIPT: enable-vericite-assignments
@@ -81,6 +125,18 @@ This script uses the Canvas API to adjust the assignment field "external_tool_ta
 ```
 ./rewrite-assignment-urls -token="9000~aXXXXXXXXXXXXXXXXXXX" -url="https://acmecollege.instructure.com/api/v1/"
 ```
+
+# Combine scripts in a chain of output and input
+
+The scripts are written so that you can combine them
+Ex: Download all submissions for a given account ID and term ID:
+
+```
+./list-courses -token="9000~aXXXXXXXXXXXXXXXXXXX" -url="https://acmecollege.instructure.com/api/v1/" -accountId=1 -termId=1 | tee courses.csv \
+&& ./list-course-assignments -token="9000~aXXXXXXXXXXXXXXXXXXX" -url="https://acmecollege.instructure.com/api/v1/" -filename="courses.csv" | tee assignments.csv \
+&& ./export-submissions -token="9000~aXXXXXXXXXXXXXXXXXXX" -url="https://acmecollege.instructure.com/api/v1/" -filename="assignments.csv" -outputFolder="submissions"
+```
+
 
 # Building from Source
 Example shown for rewrite-assignment-url
