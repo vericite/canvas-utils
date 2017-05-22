@@ -129,6 +129,7 @@ This script uses the Canvas API to adjust the assignment field "external_tool_ta
 # Combine scripts in a chain of output and input
 
 The scripts are written so that you can combine them
+
 Ex: Download all submissions for a given account ID and term ID:
 
 ```

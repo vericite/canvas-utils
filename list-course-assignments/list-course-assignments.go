@@ -18,7 +18,7 @@ var canvasBase = flag.String("url", "https://vericite.instructure.com/api/v1/", 
 var canvasAuth = flag.String("token", "xxxxxx", "the Canvas authentication token after the word Bearer")
 var csvFilename = flag.String("filename", "courses.csv", "a file containing all course ids")
 var turnitin = flag.Bool("turnitin", false, "A flag indicating to only return assignments with TurnItIn enabled")
-
+var RESULTS_PER_PAGE = 100
 // Use -log=debug to get debug-level output
 var logger = stdlog.GetFromFlags()
 
@@ -93,35 +93,45 @@ func main() {
 		}
 
 		// Get all assignments inside this course
-		req, err := http.NewRequest("GET", *canvasBase+"courses/"+courseID+"/assignments?per_page=100", nil)
-		if err != nil {
-			panic("Could not fetch: " + *canvasBase + "courses")
-		}
-		req.Header.Add("Content-Type", "application/json")
-		req.Header.Add("Authorization", "Bearer "+*canvasAuth)
-		resp, err := client.Do(req)
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			panic("Auth failed fetching")
-		}
+		var page = 1
+		for {
+			req, err := http.NewRequest("GET", *canvasBase+"courses/"+courseID+"/assignments?per_page=" + strconv.Itoa(RESULTS_PER_PAGE) + "&page=" + strconv.Itoa(page), nil)
+			if err != nil {
+				panic("Could not fetch: " + *canvasBase + "courses")
+			}
+			req.Header.Add("Content-Type", "application/json")
+			req.Header.Add("Authorization", "Bearer "+*canvasAuth)
+			resp, err := client.Do(req)
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				panic("Auth failed fetching")
+			}
 
-		if resp.StatusCode != http.StatusOK {
-			logger.Warning("Could not fetch assignments for course " + courseID + ". Canvas response: " + resp.Status)
-			continue
-		}
+			if resp.StatusCode != http.StatusOK {
+				logger.Warning("Could not fetch assignments for course " + courseID + ". Canvas response: " + resp.Status)
+				break
+			}
 
-		// Convert the Canvas JSON into Go struct
-		var canvasAssignments []CanvasAssignment
-		json.Unmarshal(body, &canvasAssignments)
+			// Convert the Canvas JSON into Go struct
+			var canvasAssignments []CanvasAssignment
+			json.Unmarshal(body, &canvasAssignments)
 
-		// Loop over each assignment and look for the relevant attribute
-		for _, canvasAssignment := range canvasAssignments {
-			if(((len(canvasAssignment.SubmissionTypes) == 2 && contains(canvasAssignment.SubmissionTypes, "online_upload") && contains(canvasAssignment.SubmissionTypes, "online_text_entry")) ||
-				 (len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_upload")) ||
-				 (len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_text_entry"))) &&
-				 (*turnitin != true || canvasAssignment.TurnitinEnabled == true)){
-				 fmt.Printf("%v,%v,%v\n", courseID, canvasAssignment.ID, canvasAssignment.Name)
+			// Loop over each assignment and look for the relevant attribute
+			for _, canvasAssignment := range canvasAssignments {
+				if(((len(canvasAssignment.SubmissionTypes) == 2 && contains(canvasAssignment.SubmissionTypes, "online_upload") && contains(canvasAssignment.SubmissionTypes, "online_text_entry")) ||
+					 (len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_upload")) ||
+					 (len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_text_entry"))) &&
+					 (*turnitin != true || canvasAssignment.TurnitinEnabled == true)){
+					 fmt.Printf("%v,%v,%v\n", courseID, canvasAssignment.ID, canvasAssignment.Name)
+				}
+			}
+			if(len(canvasAssignments) >= RESULTS_PER_PAGE && page < 100){ //limit results to 100 * RESULTS_PER_PAGE
+				//more results, go to next page:
+				page++
+			}else{
+				//no more results, break out of for Loop
+				break;
 			}
 		}
 	}
