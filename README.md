@@ -37,6 +37,8 @@ This script uses the Canvas API to print out a list of the Assignments associate
         the base URL for the Canvas API (example "https://acmecollege.instructure.com/api/v1/")
   -turnitin (optional)
         optional flag to only return assignments that have turnitin enabled (turnitin must still be enabled in Canvas for this to work)
+  -vericiteLtiMigration (optional)
+        optional flag to only return assignments that have an old VeriCite LTI URL
 ```
 
 ### Example
@@ -106,13 +108,13 @@ Run Script:
 
 # SCRIPT: rewrite-assignment-urls
 
-This script uses the Canvas API to adjust the assignment field "external_tool_tag_attributes" to correct the VeriCite URL. It is used as a migration from a previous LTI (external tool) URL to a new one.
+This script uses the Canvas API to adjust the assignment field "external_tool_tag_attributes" to correct the VeriCite URL. It is used as a migration from a previous LTI (external tool) URL to a new one. It takes the input of the "list-course-assignments" script (make sure to set the "vericiteLtiMigration" flag to true).
 
 ### Script Options
 
 ```
  -filename string
-        a file containing all course ids (default "courses.csv")
+        a file containing all course ids (default "assignments.csv")
   -log string
         sets the logging threshold (default "info")
   -token string

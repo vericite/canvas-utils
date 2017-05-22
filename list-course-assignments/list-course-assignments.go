@@ -11,6 +11,7 @@ import (
 	"os"
   "strconv"
 	"github.com/alexcesaro/log/stdlog"
+	"strings"
 )
 
 // Override the defaults using --url=xxxx and --token=yyyy and -filename=courses.txt
@@ -18,6 +19,7 @@ var canvasBase = flag.String("url", "https://vericite.instructure.com/api/v1/", 
 var canvasAuth = flag.String("token", "xxxxxx", "the Canvas authentication token after the word Bearer")
 var csvFilename = flag.String("filename", "courses.csv", "a file containing all course ids")
 var turnitin = flag.Bool("turnitin", false, "A flag indicating to only return assignments with TurnItIn enabled")
+var vericiteLtiMigration = flag.Bool("vericiteLtiMigration", false, "A flag indicating to only return VeriCite LTI assignments that need to be migrated")
 var RESULTS_PER_PAGE = 100
 // Use -log=debug to get debug-level output
 var logger = stdlog.GetFromFlags()
@@ -119,7 +121,13 @@ func main() {
 
 			// Loop over each assignment and look for the relevant attribute
 			for _, canvasAssignment := range canvasAssignments {
-				if(((len(canvasAssignment.SubmissionTypes) == 2 && contains(canvasAssignment.SubmissionTypes, "online_upload") && contains(canvasAssignment.SubmissionTypes, "online_text_entry")) ||
+				if(*vericiteLtiMigration){
+					//if VeriCite migraiton, then only print assignments that match the old LTI URLs
+					urlToTest := string(canvasAssignment.ExternalToolTagAttributes.URL)
+					if strings.Contains(urlToTest, "longsight.com") || strings.Contains(urlToTest, "app.vericite.com") {
+						fmt.Printf("%v,%v,%v\n", courseID, canvasAssignment.ID, canvasAssignment.Name)
+					}
+				}else if(((len(canvasAssignment.SubmissionTypes) == 2 && contains(canvasAssignment.SubmissionTypes, "online_upload") && contains(canvasAssignment.SubmissionTypes, "online_text_entry")) ||
 					 (len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_upload")) ||
 					 (len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_text_entry"))) &&
 					 (*turnitin != true || canvasAssignment.TurnitinEnabled == true)){
