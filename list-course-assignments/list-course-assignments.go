@@ -4,14 +4,14 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-  "strconv"
-	"github.com/alexcesaro/log/stdlog"
+	"strconv"
 	"strings"
+
+	"github.com/alexcesaro/log/stdlog"
 )
 
 // Override the defaults using --url=xxxx and --token=yyyy and -filename=courses.txt
@@ -21,6 +21,7 @@ var csvFilename = flag.String("filename", "courses.csv", "a file containing all 
 var turnitin = flag.Bool("turnitin", false, "A flag indicating to only return assignments with TurnItIn enabled")
 var vericiteLtiMigration = flag.Bool("vericiteLtiMigration", false, "A flag indicating to only return VeriCite LTI assignments that need to be migrated")
 var RESULTS_PER_PAGE = 100
+
 // Use -log=debug to get debug-level output
 var logger = stdlog.GetFromFlags()
 
@@ -79,8 +80,11 @@ func main() {
 	defer file.Close()
 	reader := csv.NewReader(file)
 
+	// Start writing the new CSV
+	w := csv.NewWriter(os.Stdout)
+	w.Write([]string{"courseId", "assignmentId", "assignmentName"})
+
 	// Loop through the file containing course IDs
-	fmt.Printf("courseId,assignmentId,assignmentName\n")
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
@@ -91,19 +95,22 @@ func main() {
 		courseID := record[0]
 		if _, err := strconv.Atoi(courseID); err != nil {
 			//this is most likely the header, skip
-      continue
+			continue
 		}
 
 		// Get all assignments inside this course
 		var page = 1
 		for {
-			req, err := http.NewRequest("GET", *canvasBase+"courses/"+courseID+"/assignments?per_page=" + strconv.Itoa(RESULTS_PER_PAGE) + "&page=" + strconv.Itoa(page), nil)
+			req, err := http.NewRequest("GET", *canvasBase+"courses/"+courseID+"/assignments?per_page="+strconv.Itoa(RESULTS_PER_PAGE)+"&page="+strconv.Itoa(page), nil)
 			if err != nil {
-				panic("Could not fetch: " + *canvasBase + "courses")
+				panic("Could not setup new request: " + *canvasBase + "courses/assignments")
 			}
 			req.Header.Add("Content-Type", "application/json")
 			req.Header.Add("Authorization", "Bearer "+*canvasAuth)
 			resp, err := client.Do(req)
+			if err != nil {
+				panic("Could not fetch: " + *canvasBase + "courses/assignments")
+			}
 			defer resp.Body.Close()
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
@@ -121,35 +128,37 @@ func main() {
 
 			// Loop over each assignment and look for the relevant attribute
 			for _, canvasAssignment := range canvasAssignments {
-				if(*vericiteLtiMigration){
+				if *vericiteLtiMigration {
 					//if VeriCite migraiton, then only print assignments that match the old LTI URLs
 					urlToTest := string(canvasAssignment.ExternalToolTagAttributes.URL)
 					if strings.Contains(urlToTest, "longsight.com") || strings.Contains(urlToTest, "app.vericite.com") {
-						fmt.Printf("%v,%v,%v\n", courseID, canvasAssignment.ID, canvasAssignment.Name)
+						w.Write([]string{courseID, strconv.Itoa(canvasAssignment.ID), canvasAssignment.Name})
 					}
-				}else if(((len(canvasAssignment.SubmissionTypes) == 2 && contains(canvasAssignment.SubmissionTypes, "online_upload") && contains(canvasAssignment.SubmissionTypes, "online_text_entry")) ||
-					 (len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_upload")) ||
-					 (len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_text_entry"))) &&
-					 (*turnitin != true || canvasAssignment.TurnitinEnabled == true)){
-					 fmt.Printf("%v,%v,%v\n", courseID, canvasAssignment.ID, canvasAssignment.Name)
+				} else if ((len(canvasAssignment.SubmissionTypes) == 2 && contains(canvasAssignment.SubmissionTypes, "online_upload") && contains(canvasAssignment.SubmissionTypes, "online_text_entry")) ||
+					(len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_upload")) ||
+					(len(canvasAssignment.SubmissionTypes) == 1 && contains(canvasAssignment.SubmissionTypes, "online_text_entry"))) &&
+					(*turnitin != true || canvasAssignment.TurnitinEnabled == true) {
+					w.Write([]string{courseID, strconv.Itoa(canvasAssignment.ID), canvasAssignment.Name})
 				}
 			}
-			if(len(canvasAssignments) >= RESULTS_PER_PAGE && page < 100){ //limit results to 100 * RESULTS_PER_PAGE
+			if len(canvasAssignments) >= RESULTS_PER_PAGE && page < 100 { //limit results to 100 * RESULTS_PER_PAGE
 				//more results, go to next page:
 				page++
-			}else{
+			} else {
 				//no more results, break out of for Loop
-				break;
+				break
 			}
 		}
 	}
+	// Flush all output to StdOut
+	w.Flush()
 }
 
 func contains(s []string, e string) bool {
-    for _, a := range s {
-        if a == e {
-            return true
-        }
-    }
-    return false
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }

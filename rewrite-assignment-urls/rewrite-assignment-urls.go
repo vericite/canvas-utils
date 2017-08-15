@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+
 	"github.com/alexcesaro/log/stdlog"
 )
 
@@ -43,9 +44,9 @@ func main() {
 		courseID := record[0]
 		assignmentID := record[1]
 		assignmentName := record[2]
-		if _, err := strconv.Atoi(courseID); err != nil {
+		if _, errconv := strconv.Atoi(courseID); errconv != nil {
 			//this is most likely the header, skip
-      continue
+			continue
 		}
 
 		data := url.Values{}
